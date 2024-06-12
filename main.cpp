@@ -12,21 +12,16 @@ int main()
     DigitalOut pinB1(A2);
     DigitalOut pinB2(A3);
 
-    // Declaration pin leds IHM
-    DigitalOut pinLed1(A4);
-    DigitalOut pinLed2(A5);
-    DigitalOut pinLed3(A6);
-
     // Declaration pin valve injection
     DigitalOut pinValve(D3);
 
     // Declaration pin module photo
-    DigitalOut pinPhotoIn(D6);
-    DigitalOut pinPhotoOut(D7);
+    DigitalOut pinPhotoIn(PB_1);
+    DigitalOut pinPhotoOut(PC_14);
 
     // Declaration pin barriere immat
-    DigitalOut pinLed(D8);
-    InterruptIn pinCapLum(D9);
+    DigitalOut pinLed(PA_12);
+    InterruptIn pinCapLum(PA_2);
 
     // Instanciation moteur PaP
     MotPaP moteur(pinA1, pinA2, pinB1, pinB2);
@@ -37,12 +32,23 @@ int main()
     // Instanciation biblio applicative
     Manege enchante(moteur, sysInject, pinPhotoIn, pinPhotoOut, pinLed, pinCapLum);
 
-    // Initialisation du systeme
+    // Declaration pin leds IHM
+    DigitalOut pinLed1(A4);
+    DigitalOut pinLed2(A5);
+    DigitalOut pinLed3(A6);
+
+    pinLed1.write(1); 
+    pinLed2.write(1);
+    pinLed3.write(1);
+
+    // Initialisation du systeme (homing moteur)
+    pinLed.write(1);
     enchante.init();
 
+    printf("Hello main loop\n");
 
     while (1) {
-        ThisThread::sleep_for(5s);
+        
     }
 
     return 0;

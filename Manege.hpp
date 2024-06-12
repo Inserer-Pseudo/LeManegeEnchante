@@ -5,7 +5,6 @@
 #include "MotPaP.hpp"
 #include "mbed.h"
 
-
 enum Etats {
   INITIAL,
   TOURNE_PHOTO,
@@ -52,7 +51,7 @@ private:
   bool timedOut;
 
   void cycle(void);
-  void handleCapLumChange(bool);
+  void handleCapLumRE();
   void handleTimeout(void);
 };
 
