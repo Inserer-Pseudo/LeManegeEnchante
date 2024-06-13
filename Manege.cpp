@@ -146,10 +146,10 @@ void Manege::cycle() {
 void Manege::handleCapLumRE() { reFlag_pinCapLum = true; }
 void Manege::handleCapLumFE() { feFlag_pinCapLum = true; }
 void Manege::handlePurgeRE() { 
-	//valve.openValve();
+	valve.closeValve(); 
 }
 void Manege::handlePurgeFE() {
-	//valve.closeValve(); 
+	valve.openValve();
 }
 
 void Manege::handleTimeout(void) { timedOut = true; }

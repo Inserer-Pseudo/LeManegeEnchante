@@ -8,6 +8,7 @@ int main()
 {
     // Declaration du bouton purge
     InterruptIn bpPurge(PA_8);
+    bpPurge.mode(PullUp);
     
     // Declaration pin moteur
     DigitalOut pinA1(A0);
@@ -48,7 +49,7 @@ int main()
     // Initialisation du systeme (homing moteur)
     pinLed.write(1);
     moteur.commandePas(-5000);
-    //enchante.init();
+    enchante.init();
     //moteur.resetCodeurAbsolu();
     //moteur.commandePas(4096*12.5);
     //printf("pas actuel : %d\n", moteur.getPasActuel());
