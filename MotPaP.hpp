@@ -4,43 +4,57 @@
 #include "mbed.h"
 #include <cstdint>
 
-#define PAS_PAR_TOUR 128
+#define posMax 51200
 
 class MotPaP {
 public:
-    MotPaP(DigitalOut& bobineA1, DigitalOut& bobineA2, DigitalOut& bobineB1, DigitalOut& bobineB2);
+  MotPaP(DigitalOut &bobineA1, DigitalOut &bobineA2, DigitalOut &bobineB1,
+         DigitalOut &bobineB2);
 
-    void tourner(bool);
+  void resetCodeurAbsolu(void);
+  int resetPasRestants(void);
 
-    void PosAZero();
-    int stopMove(void);
-    void commandePas(int pas);
-    int off(void);
-    void commandeAngle(float angle);
-    int getPasActuel(void);
-    float getAngleActuel(void);
+  // Commandes synchrones
+  void commandePas(int pas);
+  void commandeAngle(float angle);
+  // Commande asynchrone
+  int prepCommandePas(int pas);
+  int execCommandePas(void);
 
-    int prepCommandePas(int pas);
-    int execCommandePas(void);
+  int relacherMoteur(void);
+
+  // Getters / Setters
+  int getPasActuel(void);
+  float getAngleActuel(void);
+  void setReduction(float);
 
 private:
-    DigitalOut& bobineA1;
-    DigitalOut& bobineA2;
-    DigitalOut& bobineB1;
-    DigitalOut& bobineB2;
+  // Stockage interne instance bobine
+  DigitalOut &bobineA1;
+  DigitalOut &bobineA2;
+  DigitalOut &bobineB1;
+  DigitalOut &bobineB2;
 
-    Timer t;
-    uint32_t tempsPasPrecedent;
+  // Timer execution des pas
+  Timer t1;
+  uint32_t tempsExec1;
+  uint32_t tempsPasPrecedent1;
+  Timer t2;
+  uint32_t tempsExec2;
+  uint32_t tempsPasPrecedent2;
 
-    int posActuelle;
-    int etapePas;
-    int phases;
-    int pasRestants;
+  int posActuelle;
+  int etapePas;
+  int phases;
+  int pasRestants;
 
+  float reduction;
 
-    void demiPas(int);
-    int angleEnPas(float angle);
-    void setOutputs(void);
+  void demiPas(int);
+  void majPosActuelle(bool);
+  int angleEnPas(float);
+  float pasEnAngle(int);
+  void setOutputs(void);
 };
 
 #endif // MOTPAP_H

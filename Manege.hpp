@@ -19,7 +19,7 @@ enum Etats {
 class Manege {
 public:
   Manege(MotPaP &moteur, Injection &valve, DigitalOut &pinPhotoIn,
-         DigitalOut &pinPhotoOut, DigitalOut &pinLed, InterruptIn &pinCapLum);
+         DigitalOut &pinPhotoOut, DigitalOut &pinLed, InterruptIn &pinCapLum, InterruptIn &bpPurge);
 
   int init(void);
 
@@ -39,19 +39,26 @@ private:
   DigitalOut &pinPhotoOut;
   DigitalOut &pinLed;
   InterruptIn &pinCapLum;
+  InterruptIn &bpPurge;
 
   bool running;
   bool reFlag_pinCapLum;
   bool feFlag_pinCapLum;
+  bool reFlag_bpPurge;
+  bool feFlag_bpPurge;
 
   EventQueue eventQueue;
   Thread thread;
 
   Timeout timeout;
+  Timer t;
   bool timedOut;
 
   void cycle(void);
   void handleCapLumRE();
+  void handleCapLumFE();
+  void handlePurgeRE();
+  void handlePurgeFE();
   void handleTimeout(void);
 };
 

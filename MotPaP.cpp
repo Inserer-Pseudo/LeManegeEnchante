@@ -5,78 +5,75 @@ MotPaP::MotPaP(DigitalOut &bobineA1, DigitalOut &bobineA2, DigitalOut &bobineB1,
 {
     etapePas = 0;
     posActuelle = 0;
-    t.start();  // Lance le compteur lancement programme
+    t1.start();  // Lance le compteur lancement programme
 }
 
-void MotPaP::PosAZero()
+void MotPaP::resetCodeurAbsolu(void)
 {
     posActuelle = 0;
 }
 
-float MotPaP::getAngleActuel()
-{
-    return posActuelle;
-}
-
 void MotPaP::commandePas(int pas)
 {
-    pasRestants = pas * 16 * 2;
+    // moteur : 2048 pas par tour soit 4096 demi pas par tour
+
+    pasRestants = pas;
     while (pasRestants != 0)
     {
-        if (pasRestants > 0)
-        {
-            demiPas(1);
-            pasRestants--;
-            posActuelle++;
+        tempsExec1 = t1.elapsed_time().count(); // Temps ecoule en microsecondes
+
+        if (tempsExec1 - tempsPasPrecedent1 >= 1000) {
+            if (pasRestants > 0)
+            {
+                demiPas(1);
+                pasRestants--;
+                majPosActuelle(true);
+            }
+            else
+            {
+                demiPas(-1);
+                pasRestants++;
+                majPosActuelle(false);
+            }
+        tempsPasPrecedent1 = tempsExec1;
         }
-        else
-        {
-            demiPas(-1);
-            pasRestants--;
-            posActuelle--;
-        }
-        ThisThread::sleep_for(1ms);
     }
 }
 
 int MotPaP::prepCommandePas(int pas)
 {
-    pasRestants = pas * 16 * 2;
+    pasRestants = pas;
     return pasRestants;
 }
 
 int MotPaP::execCommandePas(void)
 {
-    uint32_t tempsExec = t.elapsed_time().count(); // Temps ecoule en microsecondes
+    tempsExec2 = t1.elapsed_time().count(); // Temps ecoule en microsecondes
 
     if (pasRestants == 0)
         return -1;
 
-    if (tempsExec - tempsPasPrecedent >= 900) {
+    if (tempsExec2 - tempsPasPrecedent2 >= 800) {
         if (pasRestants > 0)
         {
             demiPas(1);
             pasRestants--;
-            posActuelle++;
+            majPosActuelle(true);
         }
         else
         {
             demiPas(-1);
             pasRestants--;
-            posActuelle--;
+            majPosActuelle(false);
         }
-        tempsPasPrecedent = tempsExec;
+        tempsPasPrecedent2 = tempsExec2;
     }
     return 0;
 }
 
-int MotPaP::stopMove(void)
+int MotPaP::resetPasRestants(void)
 {
     pasRestants = 0;
-    pasRestants = 0;
-    pasRestants = 0;
-    pasRestants = 0;
-    // Degueu oui je sais...
     return 0;
 }
 
@@ -88,7 +85,7 @@ void MotPaP::commandeAngle(float angle)
 
 void MotPaP::demiPas(int direction)
 {
-    etapePas += (-direction);
+    etapePas += (direction);
 
     if (etapePas < 0)
         etapePas = 7;
@@ -130,7 +127,7 @@ void MotPaP::demiPas(int direction)
     setOutputs();
 }
 
-int MotPaP::off(void)
+int MotPaP::relacherMoteur(void)
 {
     bobineA1 = 0;
     bobineA2 = 0;
@@ -146,10 +143,37 @@ int MotPaP::angleEnPas(float angle)
     return static_cast<int>(angle * pasParTour / 360.0);
 }
 
+float MotPaP::pasEnAngle(int pas)
+{
+    // float pasParTour = 360.0 / 1.8; // 1.8° par pas
+    // return static_cast<int>(angle * pasParTour / 360.0);
+    return 0;
+}
+
 void MotPaP::setOutputs(void)
 {
     bobineA1 = (phases & 0x1) > 0; // Prend le bit le plus à droite
     bobineA2 = (phases & 0x2) > 0; // Prend le deuxième bit à partir de la droite
     bobineB1 = (phases & 0x4) > 0; // Prend le troisième bit à partir de la droite
     bobineB2 = (phases & 0x8) > 0; // Prend le quatrième bit à partir de la droite
+}
+
+void MotPaP::majPosActuelle(bool ajoute)
+{
+    if(ajoute){
+        if(posActuelle + 1 > posMax) posActuelle = 0;
+        posActuelle ++;
+    } else { 
+        if(posActuelle == 0) posActuelle = posMax;
+        posActuelle --;
+    }
+}
+
+int MotPaP::getPasActuel(void)
+{
+    return posActuelle;
+}
+
+void MotPaP::setReduction(float reduc){
+    this->reduction = reduc;
 }
